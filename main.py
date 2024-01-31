@@ -1,7 +1,8 @@
-from openpyxl import load_workbook
 import string
 from statistics import mean
+from openpyxl import load_workbook
 
+# TODO Сделать инпутами, вывести в отдельынй файл
 FILE: str = 'СМП 10 2023.xlsx'
 REC_COL: str = 'L'
 REC_COL_MR: str = 'M'

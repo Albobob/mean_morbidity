@@ -1,29 +1,74 @@
 import string
 from statistics import mean
 import time
+import os
+import platform
 
 from openpyxl import load_workbook
+
+
+def clear_console() -> None:
+    os_type = platform.system()
+    if os_type == 'Windows':
+        os.system('cls')
+    elif os_type == "Linux" or os_type == "Darwin":
+        os.system('clear')
+
 
 HEADER_SMP_OUTLIERS = 'CМП (выброс макс мин)'
 HEADER_SMP_MR = 'CМП (по МР)'
 HEADER_OUTLIERS_FLAG = 'Есть выскакивающий показатель'
 
+
 class Menu:
     def __init__(self) -> None:
         self.excel_file = None
 
-    def input_file_name(self) -> None:
+    def input_file_info(self) -> None:
+        clear_console()
         file_name = input("Введите название файла:")
-        self.excel_file = ExcelFile(file_name)
-    
-    def input_start_cell(self) -> None:
         col = str(input('Введите букву столбца начала данных: '))
         row = int(input('Введите номер строки начала данных: '))
+        
+        self.file = file_name
         self.start_cell = f'{col}{row}'
+        self.col = col
+        self.row = row
+
+        self.info_file = (f'\n\n----INFO----\n'
+                          f'Файл: {file_name}\n'
+                          f'Стартовая позиця: {self.start_cell}\n\n')
     
-    def input_smp_col(self) 
+    def input_smp_col(self):
+        clear_console()
+        smp_col = str(input('Введите букву столбца для записи СМП' 
+                                     'посчитоного по старой методике: '))
+        smp_mr_col = str(input('Введите букву столбца для записи СМП' 
+                                     'посчитоного по Методичке: '))
+        
+        self.write_to_smp_mr_col = smp_mr_col
+        self.write_to_smp_col = smp_col
+
+        self.info_writing_smp = (f'\n-*--*--*-info_writing_smp-*--*--*--*-\n'
+                                 f'{HEADER_SMP_OUTLIERS} - '
+                                 f'{self.write_to_smp_col}\n'
+                                 f'{HEADER_SMP_MR} - '
+                                 f'{self.write_to_smp_mr_col}\n\n')
+    
+    def info(self):
+        clear_console()
+        try:
+            if self.info_file or self.info_writing_smp:
+                print(f'{self.info_file}\n{self.info_writing_smp}')
+            else:
+                print('\n\n*#*#*#*#*#*#*#*#*#\n'
+                      'Кажется вы еще ничего не выбрали...'
+                      '*#*#*#*#*#*#*#*#*#\n\n')
+        except AttributeError: 
+            print('\nКажется вы еще ничего не выбрали...\nпопробуйте снвоа')
     
     def quit(self) -> None:
+        clear_console()
         if self.excel_file:
             self.excel_file.close()
         print('Выход из  программы.')
@@ -69,16 +114,19 @@ def get_data(excel_file: ExcelFile, sheet_name: str, row: int) -> list[float]:
 def main():
     menu = Menu()
     choices = {
-        '1': menu.input_file_name,
-        '2': menu.input_start_cell,
+        '1': menu.input_file_info,
+        '2': menu.input_smp_col,
+        '3': menu.info,
         'quit': menu.quit,
         'albert': menu.quit
     }
     while True:
+        clear_console()
         print("""
 Меню:
-1. Ввод названия файла
-2. Ввод координат ячейки начала данных
+1. Ввод названия файла и координат ячейки начала данных...
+2. Ввод коордиант для записи СМП:
+3. INFO:
 Введите 'quit' для выхода из программы.
         """)
         choice = input("Выберите действие: ")
@@ -86,10 +134,16 @@ def main():
         if action:
             action()
             if choice == '1':
-                book = ExcelFile(menu.excel_file)
-                sheet: str = book.wb.sheetnames
-            if choice  == '2':
+                
+                # book = ExcelFile(menu.file)
+                # sheet: str = book.wb.sheetnames
                 pass
+            if choice == '2':
+                pass
+            
+            if choice == '3':
+                pass    
+                          
         else:
             print("Некорректный выбор, попробуйте еще раз.")
 

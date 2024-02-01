@@ -35,21 +35,21 @@ class Menu:
         self.col = col
         self.row = row
 
-        self.info_file = (f'\n\n----INFO----\n'
+        self.info_file = (f'\n\n----INFO_FILE----\n'
                           f'Файл: {file_name}\n'
-                          f'Стартовая позиця: {self.start_cell}\n\n')
-    
+                          f'Стартовая позиця: {self.start_cell}\n')
+       
     def input_smp_col(self):
         clear_console()
         smp_col = str(input('Введите букву столбца для записи СМП' 
                                      'посчитоного по старой методике: '))
         smp_mr_col = str(input('Введите букву столбца для записи СМП' 
                                      'посчитоного по Методичке: '))
-        
+            
         self.write_to_smp_mr_col = smp_mr_col
         self.write_to_smp_col = smp_col
 
-        self.info_writing_smp = (f'\n-*--*--*-info_writing_smp-*--*--*--*-\n'
+        self.info_writing_smp = (f'-*--*--*-info_writing_smp-*--*--*--*-\n'
                                  f'{HEADER_SMP_OUTLIERS} - '
                                  f'{self.write_to_smp_col}\n'
                                  f'{HEADER_SMP_MR} - '
@@ -111,17 +111,45 @@ def get_data(excel_file: ExcelFile, sheet_name: str, row: int) -> list[float]:
     return data
 
 
+def print_page(menu: Menu) -> None:
+    if not isinstance(menu, Menu):
+        print("Ошибка: Неверный тип объекта меню.")
+        return
+
+    if not menu.file:
+        print("Файл не выбран.")
+        return
+    
+    try:
+        book = ExcelFile(menu.file)
+        sheet_names = book.wb.sheetnames
+        if not sheet_names:
+            print("Файл не содержит листов.")
+            return
+        
+        print(f"Файл: {menu.file}")
+        print("Листы:")
+        for sheet_name in sheet_names:
+            print(sheet_name)
+            
+    except Exception as e:
+        print(f"Ошибка при попытке загрузить файл: {e}")
+
+
+
 def main():
+    clear_console()
     menu = Menu()
+
     choices = {
         '1': menu.input_file_info,
         '2': menu.input_smp_col,
         '3': menu.info,
+        '4': lambda: print_page(menu),
         'quit': menu.quit,
         'albert': menu.quit
     }
     while True:
-        clear_console()
         print("""
 Меню:
 1. Ввод названия файла и координат ячейки начала данных...
@@ -136,14 +164,14 @@ def main():
             if choice == '1':
                 
                 # book = ExcelFile(menu.file)
-                # sheet: str = book.wb.sheetnames
+                # 
                 pass
             if choice == '2':
                 pass
-            
             if choice == '3':
-                pass    
-                          
+                pass
+            if choice == '4':
+                pass                            
         else:
             print("Некорректный выбор, попробуйте еще раз.")
 

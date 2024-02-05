@@ -9,6 +9,7 @@ FILE: str = 'я - д_СМП.xlsx'
 FORM: str = 'ф 1_субъекты_рост-сниж_январь-декабрь 2023.xlsx'
 REC_COL: str = 'L'
 REC_COL_FORM: str = 'AK'
+REC_COL_CMPR: str = 'AL'
 REC_COL_MR: str = 'M'
 OUTLIERS_FLAG: str = 'N'
 PERIOD = '(2011 - 2019 гг. и 2022 г.)'
@@ -240,6 +241,26 @@ def get_none_region(name: str, none_reg):
         if name == value:
             return none_reg[key]
 
+def compare_and_describe_changes(value1, value2) -> str:
+    if value1 == 0 and value2 != 0:
+        return "↑ на 100%"
+    elif value1 != 0 and value2 == 0:
+        return "↓ на 100%"
+    elif value1 == value2:
+        return "На уровне"
+    else:
+        g_4 = value1 / value2 if value1 > value2 else value2 / value1
+        g_3 = abs(value1 * 100 / value2 - 100)
+        f_4 = '↑ в' if value1 > value2 else '↓ в'
+        f_3 = '↑' if value1 > value2 else '↓ на'
+
+        if g_4 >= 1.5:
+            return f"{f_4} {g_4:.1f} раза/раз"
+        else:
+            return f"{f_3} {g_3:.1f}%"
+
+
+
 
 with open('nod_2.json', 'r', encoding='utf-8') as file:
     sheet_match = json.load(file)
@@ -260,11 +281,20 @@ for i in data_for_recording['form_1']:
 
     if row != None:
         record(wb_write, sheet_write, REC_COL_FORM, row, value)
+        value_form_one = decode(wb_write, sheet_write, 'D', row)
+        record(wb_write, sheet_write, REC_COL_CMPR, row,
+               compare_and_describe_changes(value1=value_form_one,
+                                            value2=value))
+
     else:
         new_row = get_none_region(name, none_reg)
         if new_row != None:
             print(new_row)
             record(wb_write, sheet_write, REC_COL_FORM, new_row, value)
+            value_form_one = decode(wb_write, sheet_write, 'D', new_row)
+            record(wb_write, sheet_write, REC_COL_CMPR, new_row,
+                   compare_and_describe_changes(value1=value_form_one,
+                                                value2=value))
 
 pprint(data_for_recording)
 

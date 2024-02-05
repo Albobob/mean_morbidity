@@ -5,7 +5,7 @@ from openpyxl import load_workbook
 from pprint import pprint
 
 # TODO Сделать инпутами, вывести в отдельынй файл
-FILE: str = 'я - д_СМП.xlsx'
+FILE: str = 'Ф1_01.xlsx'
 FORM: str = 'ф 1_субъекты_рост-сниж_январь-декабрь 2023.xlsx'
 REC_COL: str = 'L'
 REC_COL_FORM: str = 'AK'
@@ -241,9 +241,14 @@ def get_none_region(name: str, none_reg):
         if name == value:
             return none_reg[key]
 
+
 def compare_and_describe_changes(value1, value2) -> str:
     if value1 == 0 and value2 != 0:
         return "↑ на 100%"
+    elif value1 == None:
+        value1 = 0
+    elif value2 == None:
+        value2 = 0
     elif value1 != 0 and value2 == 0:
         return "↓ на 100%"
     elif value1 == value2:
@@ -260,8 +265,6 @@ def compare_and_describe_changes(value1, value2) -> str:
             return f"{f_3} {g_3:.1f}%"
 
 
-
-
 with open('nod_2.json', 'r', encoding='utf-8') as file:
     sheet_match = json.load(file)
 
@@ -273,9 +276,10 @@ for i in data_for_recording['form_1']:
     code = i['code']
     value = i['value']
     sheet_write = get_page(code, match_data)
-    print(code, '|', sheet_write)
+    print(code, '|', sheet_write, '|')
     name = i['region']
     row = get_row_name(wb_write, sheet_write, name)
+
     record(wb_write, sheet_write, REC_COL_FORM, 6, 'CМП')
     record(wb_write, sheet_write, REC_COL_FORM, 7, PERIOD)
 

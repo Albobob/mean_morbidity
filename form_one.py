@@ -6,7 +6,7 @@ from pprint import pprint
 
 # TODO Сделать инпутами, вывести в отдельынй файл
 FILE: str = 'Ф1_01.xlsx'
-FORM: str = 'ф 1_субъекты_рост-сниж_январь-декабрь 2023.xlsx'
+FORM: str = 'ф 1_субъекты_рост-сниж_январь 2024.xlsx'
 REC_COL: str = 'L'
 REC_COL_FORM: str = 'AK'
 REC_COL_CMPR: str = 'AL'
@@ -126,13 +126,13 @@ def check_outliers(data: list):
 
     try:
         ratio_max: float = (data[-1] - data[-2]) / diff_max_min
-        if ratio_max > a and ratio_max > b:
+        if ratio_max > a or ratio_max > b:
             outlier.add(max(data))
             rec_xl['outliers_max'] = 'y'
             # print(f'Есть выскакивающий показатель {max(data)}')
 
         ratio_min: float = (data[1] - data[0]) / diff_max_min
-        if ratio_min > a and ratio_min > b:
+        if ratio_min > a or ratio_min > b:
             outlier.add(min(data))
             rec_xl['outliers_min'] = 'y'
             # print(f'Есть выскакивающий показатель {min(data)}')
@@ -146,7 +146,7 @@ def check_outliers(data: list):
     except ZeroDivisionError:
         rec_xl['value'] = 0
 
-    rec_xl['value'] = round(mean(set(data) - outlier), 3)
+    rec_xl['value'] = round(mean(set(data) - outlier), 2)
     return rec_xl
 
 
@@ -244,23 +244,27 @@ def get_none_region(name: str, none_reg):
 
 def compare_and_describe_changes(value1, value2) -> str:
     if value1 == 0 and value2 != 0:
-        return "↑ на 100%"
+        return "↓ на 100%"
     elif value1 == None:
         value1 = 0
     elif value2 == None:
         value2 = 0
     elif value1 != 0 and value2 == 0:
-        return "↓ на 100%"
-    elif value1 == value2:
+        return "↑ на 100%"
+    elif value1 == value2 and value1 != 0:
         return "На уровне"
+    elif value1 == value2 and value2 != 0:
+        return "На уровне"
+    elif value1 == 0 and value2 == 0:
+        return None
     else:
         g_4 = value1 / value2 if value1 > value2 else value2 / value1
         g_3 = abs(value1 * 100 / value2 - 100)
         f_4 = '↑ в' if value1 > value2 else '↓ в'
-        f_3 = '↑' if value1 > value2 else '↓ на'
+        f_3 = '↑ на' if value1 > value2 else '↓ на'
 
         if g_4 >= 1.5:
-            return f"{f_4} {g_4:.1f} раза/раз"
+            return f"{f_4} {g_4:.1f} раз"
         else:
             return f"{f_3} {g_3:.1f}%"
 
